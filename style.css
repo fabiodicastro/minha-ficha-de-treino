@@ -109,3 +109,59 @@ nav ul li a:hover {
     transform: translateY(-2px); /* Efeito de "subir" um pouco */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+/* Estilos para os controles dos exercícios */
+.controles-exercicio {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Estilo padrão para botões */
+.controles-exercicio button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+/* Estilo para o botão de Concluído */
+.btn-concluido {
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+
+.btn-concluido:hover {
+    background-color: #1e7e34;
+}
+
+/* Estilo para o botão de Descanso (Cronômetro) */
+.btn-descanso {
+    background-color: #ffc107; /* Amarelo/Alerta */
+    color: #343a40;
+}
+
+.btn-descanso:hover {
+    background-color: #e0a800;
+}
+
+/* Estilo para a classe "concluido" (adicionada pelo JS) */
+.ficha-exercicio.concluido {
+    background-color: #e6ffe6; /* Fundo verde clarinho */
+    border: 1px solid #28a745;
+    opacity: 0.8;
+}
+
+.ficha-exercicio.concluido h2 {
+    text-decoration: line-through; /* Risca o título */
+    color: #28a745;
+}
+
+/* Estilo para o cronômetro */
+.cronometro {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-left: 10px;
+}
