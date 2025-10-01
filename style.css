@@ -7,6 +7,45 @@ body {
     padding: 20px;
 }
 
+/* Estilo para o cabeçalho do menu */
+header {
+    background-color: #343a40; /* Fundo escuro */
+    padding: 15px 0; /* Aumenta o espaçamento superior e inferior */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo para a lista de navegação */
+nav ul {
+    list-style-type: none; /* Remove as bolinhas */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Adiciona espaçamento entre os botões */
+}
+
+/* Estilo para os links do menu (os botões) */
+nav ul li a {
+    color: #f8f9fa; /* Cor do texto */
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 10px 25px; /* Espaçamento interno para os botões */
+    border: 2px solid transparent; /* Adiciona uma borda transparente para o efeito hover */
+    border-radius: 50px; /* Deixa os botões com cantos arredondados */
+    background-color: #007bff; /* Cor de fundo do botão */
+    transition: background-color 0.3s, transform 0.3s;
+    text-transform: uppercase; /* Deixa o texto em maiúsculo */
+}
+
+/* Efeito ao passar o mouse sobre os botões */
+nav ul li a:hover {
+    background-color: #0056b3; /* Fundo mais escuro */
+    transform: translateY(-2px); /* Efeito de "subir" um pouco */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+
 /* Estilo para o cabeçalho principal */
 h1 {
     color: #007bff;
@@ -71,44 +110,7 @@ hr {
     background-color: #ddd;
     margin: 40px 0;
 }
-/* Estilo para o cabeçalho do menu */
-/* Estilo para a faixa do menu */
-header {
-    background-color: #343a40; /* Fundo escuro */
-    padding: 15px 0; /* Aumenta o espaçamento superior e inferior */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
 
-/* Estilo para a lista de navegação */
-nav ul {
-    list-style-type: none; /* Remove as bolinhas */
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    gap: 20px; /* Adiciona espaçamento entre os botões */
-}
-
-/* Estilo para os links do menu (os botões) */
-nav ul li a {
-    color: #f8f9fa; /* Cor do texto */
-    text-decoration: none;
-    font-size: 1.1em;
-    font-weight: bold;
-    padding: 10px 25px; /* Espaçamento interno para os botões */
-    border: 2px solid transparent; /* Adiciona uma borda transparente para o efeito hover */
-    border-radius: 50px; /* Deixa os botões com cantos arredondados */
-    background-color: #007bff; /* Cor de fundo do botão */
-    transition: background-color 0.3s, transform 0.3s;
-    text-transform: uppercase; /* Deixa o texto em maiúsculo */
-}
-
-/* Efeito ao passar o mouse sobre os botões */
-nav ul li a:hover {
-    background-color: #0056b3; /* Fundo mais escuro */
-    transform: translateY(-2px); /* Efeito de "subir" um pouco */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
 /* Estilos para os controles dos exercícios */
 .controles-exercicio {
     margin-top: 15px;
