@@ -1,3 +1,7 @@
+/* ================================================= */
+/* ESTILOS BASE (DESKTOP) */
+/* ================================================= */
+
 /* Estilo para o corpo da página */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -10,38 +14,38 @@ body {
 /* Estilo para o cabeçalho do menu */
 header {
     background-color: #343a40; /* Fundo escuro */
-    padding: 15px 0; /* Aumenta o espaçamento superior e inferior */
+    padding: 15px 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Estilo para a lista de navegação */
 nav ul {
-    list-style-type: none; /* Remove as bolinhas */
+    list-style-type: none;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
-    gap: 20px; /* Adiciona espaçamento entre os botões */
+    gap: 20px;
 }
 
 /* Estilo para os links do menu (os botões) */
 nav ul li a {
-    color: #f8f9fa; /* Cor do texto */
+    color: #f8f9fa;
     text-decoration: none;
     font-size: 1.1em;
     font-weight: bold;
-    padding: 10px 25px; /* Espaçamento interno para os botões */
-    border: 2px solid transparent; /* Adiciona uma borda transparente para o efeito hover */
-    border-radius: 50px; /* Deixa os botões com cantos arredondados */
-    background-color: #007bff; /* Cor de fundo do botão */
+    padding: 10px 25px;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    background-color: #007bff;
     transition: background-color 0.3s, transform 0.3s;
-    text-transform: uppercase; /* Deixa o texto em maiúsculo */
+    text-transform: uppercase;
 }
 
 /* Efeito ao passar o mouse sobre os botões */
 nav ul li a:hover {
-    background-color: #0056b3; /* Fundo mais escuro */
-    transform: translateY(-2px); /* Efeito de "subir" um pouco */
+    background-color: #0056b3;
+    transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
@@ -51,8 +55,8 @@ h1 {
     color: #007bff;
     text-align: center;
     margin-bottom: 30px;
-    font-size: 2.5em; /* Aumenta o tamanho da fonte */
-    border-bottom: 2px solid #007bff; /* Adiciona uma linha de destaque */
+    font-size: 2.5em;
+    border-bottom: 2px solid #007bff;
     padding-bottom: 10px;
 }
 
@@ -76,12 +80,6 @@ h1 {
     color: #6c757d;
     font-size: 1.8em;
     margin-top: 0;
-}
-
-/* Estilo para o texto de descrição */
-.ficha-exercicio p {
-    font-size: 1em;
-    line-height: 1.6;
 }
 
 /* Estilo para o container dos vídeos, garantindo que sejam responsivos */
@@ -110,6 +108,11 @@ hr {
     background-color: #ddd;
     margin: 40px 0;
 }
+
+
+/* ================================================= */
+/* ESTILOS PARA OS BOTÕES DE CONTROLE (CONCLUÍDO/DESCANSO) */
+/* ================================================= */
 
 /* Estilos para os controles dos exercícios */
 .controles-exercicio {
@@ -151,13 +154,13 @@ hr {
 
 /* Estilo para a classe "concluido" (adicionada pelo JS) */
 .ficha-exercicio.concluido {
-    background-color: #e6ffe6; /* Fundo verde clarinho */
+    background-color: #e6ffe6;
     border: 1px solid #28a745;
     opacity: 0.8;
 }
 
 .ficha-exercicio.concluido h2 {
-    text-decoration: line-through; /* Risca o título */
+    text-decoration: line-through;
     color: #28a745;
 }
 
@@ -167,27 +170,106 @@ hr {
     font-weight: bold;
     margin-left: 10px;
 }
+
+
+/* ================================================= */
+/* NOVOS ESTILOS PARA AS METAS (BADGES/ETIQUETAS) */
+/* ================================================= */
+
 /* Estilo para a seção de Metas (Séries, Repetições, Carga) */
 .metas-exercicio {
     display: flex;
-    flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
-    gap: 10px; /* Espaçamento entre as etiquetas */
+    flex-wrap: wrap; 
+    gap: 10px;
     margin: 15px 0;
     font-size: 0.9em;
     font-weight: bold;
 }
 
-/* Estilo para cada etiqueta (Badge) */
+/* Estilo para cada etiqueta (Badge) - AGORA PRETO E BRANCO */
 .badge {
-    background-color: #e9ecef; /* Cor de fundo suave */
-    color: #495057; /* Cor do texto */
-    padding: 5px 10px;
-    border-radius: 5px;
+    background-color: #212529; /* PRETO bem escuro */
+    color: #ffffff; /* TEXTO BRANCO */
+    padding: 8px 12px; 
+    border-radius: 8px;
     text-transform: uppercase;
+    font-size: 0.9em;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Destaque para a Carga */
+/* Destaque para a Carga - MANTENDO UM CONTRASTE FORTE (AZUL) */
 .badge.carga {
-    background-color: #dc3545; /* Vermelho forte para destaque da carga */
+    background-color: #007bff; /* Azul (pode mudar para #dc3545 (vermelho) se preferir) */
     color: white;
+}
+
+/* Efeito ao passar o mouse */
+.badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+/* ================================================= */
+/* ESTILOS RESPONSIVOS (CELULARES E TABLETS) */
+/* ================================================= */
+
+@media (max-width: 768px) {
+    
+    /* 1. Ajuste do Corpo da Página */
+    body {
+        padding: 10px; 
+    }
+
+    /* 2. Ajuste do Cabeçalho e Título */
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+
+    /* 3. Ajuste do Menu de Navegação (Botões) */
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    nav ul li a {
+        padding: 8px 15px;
+        font-size: 1em;
+        display: block;
+        text-align: center;
+    }
+
+    /* 4. Ajuste dos Cards de Exercício */
+    .ficha-exercicio {
+        padding: 15px;
+    }
+
+    /* 5. Ajuste dos Controles (Botões Concluído/Descanso) */
+    .controles-exercicio {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Faz com que os botões de controle ocupem a largura total */
+    .controles-exercicio button {
+        width: 100%; 
+        padding: 12px;
+    }
+    
+    /* 6. Ajuste dos Badges (Etiquetas) para Celular */
+    .metas-exercicio {
+        flex-direction: column; 
+        width: 100%;
+    }
+    .badge {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+    }
 }
