@@ -186,10 +186,10 @@ hr {
     font-weight: bold;
 }
 
-/* Estilo para cada etiqueta (Badge) - AGORA PRETO E BRANCO */
+/* Estilo para cada etiqueta (Badge) - AGORA PRETO E BRANCO FORÇADO */
 .badge {
-    background-color: #212529; /* PRETO bem escuro */
-    color: #ffffff; /* TEXTO BRANCO */
+    background-color: #212529 !important; /* PRETO bem escuro FORÇADO */
+    color: #ffffff !important; /* TEXTO BRANCO FORÇADO */
     padding: 8px 12px; 
     border-radius: 8px;
     text-transform: uppercase;
@@ -202,10 +202,10 @@ hr {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Destaque para a Carga - MANTENDO UM CONTRASTE FORTE (AZUL) */
+/* Destaque para a Carga - MANTENDO UM CONTRASTE FORTE (AZUL) FORÇADO */
 .badge.carga {
-    background-color: #007bff; /* Azul (pode mudar para #dc3545 (vermelho) se preferir) */
-    color: white;
+    background-color: #007bff !important; /* Azul FORÇADO */
+    color: white !important;
 }
 
 /* Efeito ao passar o mouse */
