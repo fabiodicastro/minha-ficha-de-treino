@@ -167,3 +167,27 @@ hr {
     font-weight: bold;
     margin-left: 10px;
 }
+/* Estilo para a seção de Metas (Séries, Repetições, Carga) */
+.metas-exercicio {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+    gap: 10px; /* Espaçamento entre as etiquetas */
+    margin: 15px 0;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+/* Estilo para cada etiqueta (Badge) */
+.badge {
+    background-color: #e9ecef; /* Cor de fundo suave */
+    color: #495057; /* Cor do texto */
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-transform: uppercase;
+}
+
+/* Destaque para a Carga */
+.badge.carga {
+    background-color: #dc3545; /* Vermelho forte para destaque da carga */
+    color: white;
+}
