@@ -1,6 +1,29 @@
 // VARIÁVEL GLOBAL PARA O CRONÔMETRO
 let intervalo;
-const tempoPadrao = 60; // 60 segundos (tempo de descanso)
+// Tempo padrão de descanso em segundos
+const tempoPadrao = 60; 
+
+// ==========================================================
+// FUNÇÕES DE ÁUDIO (NOVIDADE)
+// ==========================================================
+
+function tocarAlerta() {
+    // Tenta criar um novo objeto Audio
+    try {
+        // Você pode usar o som padrão de notificação do seu sistema ou um som simples.
+        // Este é um som de bip simples. Se quiser um som diferente, troque o URL.
+        const audio = new Audio('https://www.soundjay.com/button/beep-01a.mp3');
+        audio.play();
+    } catch (e) {
+        // No caso raro de o navegador bloquear o áudio, pelo menos o código não falha.
+        console.error("Erro ao tentar tocar o áudio:", e);
+    }
+}
+
+
+// ==========================================================
+// FUNÇÕES DE UTILIDADE E PERSISTÊNCIA
+// ==========================================================
 
 // Função para extrair o ID da ficha de treino atual (ex: 'treino-a')
 function getFichaId() {
@@ -15,13 +38,52 @@ function getFichaId() {
     return 'default'; // Fallback
 }
 
-// Chave para armazenar o progresso no localStorage (será 'treino-a-concluidos' etc.)
+// Chaves para armazenar dados no localStorage
 const PROGRESSO_KEY = getFichaId() + '-concluidos';
-// Chave para armazenar as cargas (será 'treino-a-cargas' etc.)
 const CARGAS_KEY = getFichaId() + '-cargas';
 
 // ==========================================================
-// FUNÇÕES DE PERSISTÊNCIA DE CARGA (NOVIDADE)
+// FUNÇÕES DE CRONÔMETRO (ATUALIZADA)
+// ==========================================================
+
+function iniciarCronometro(botao) {
+    // 1. Limpa qualquer cronômetro anterior
+    if (intervalo) {
+        clearInterval(intervalo);
+    }
+
+    const card = botao.closest('.ficha-exercicio');
+    if (!card) return;
+
+    // Procura o span onde o cronômetro será exibido
+    const cronometroSpan = card.querySelector('.cronometro');
+    if (!cronometroSpan) return;
+
+    let tempoRestante = tempoPadrao;
+    
+    // Configura o display inicial
+    cronometroSpan.textContent = `Descanso: ${tempoRestante}s`;
+    
+    // A função que será executada a cada 1 segundo
+    intervalo = setInterval(() => {
+        tempoRestante--;
+
+        if (tempoRestante >= 0) {
+            // Atualiza o display
+            cronometroSpan.textContent = `Descanso: ${tempoRestante}s`;
+        } else {
+            // Quando o tempo zera:
+            clearInterval(intervalo);
+            cronometroSpan.textContent = 'PRONTO!';
+            // TOCA O SINAL SONORO!
+            tocarAlerta();
+        }
+    }, 1000); // Executa a cada 1000 milissegundos (1 segundo)
+}
+
+
+// ==========================================================
+// FUNÇÕES DE CARGA E PROGRESSO
 // ==========================================================
 
 function carregarCargas() {
@@ -34,7 +96,6 @@ function carregarCargas() {
         const inputCarga = document.querySelector(`.ficha-exercicio[data-id="${idExercicio}"] .badge.carga`);
         
         if (inputCarga) {
-            // Define o valor do input com a carga salva
             inputCarga.value = cargas[idExercicio];
         }
     }
@@ -47,42 +108,24 @@ function salvarCarga(inputElement) {
     const idExercicio = card.dataset.id;
     const novaCarga = inputElement.value;
 
-    // Carrega as cargas atuais, ou um objeto vazio se não houver nada
     let cargasAtuais = JSON.parse(localStorage.getItem(CARGAS_KEY)) || {};
     
-    // Atualiza a carga específica
     cargasAtuais[idExercicio] = novaCarga;
 
-    // Salva o objeto completo de volta no localStorage
     localStorage.setItem(CARGAS_KEY, JSON.stringify(cargasAtuais));
 }
 
-
-// ==========================================================
-// 1. PERSISTÊNCIA DE DADOS (CARREGAR E SALVAR PROGRESSO)
-// ==========================================================
-
-// Carrega o progresso e as cargas ao abrir a página
-document.addEventListener('DOMContentLoaded', () => {
-    carregarCargas(); // NOVO: Carrega as cargas antes
-    carregarProgresso();
-});
-
-
 function carregarProgresso() {
-    // ... (A lógica de carregar progresso é complexa, deixamos ela separada) ...
     const progressoSalvo = localStorage.getItem(PROGRESSO_KEY);
     const listaExercicios = document.querySelector('.lista-exercicios');
 
     if (!listaExercicios) return; 
 
-    // Cria o container de concluídos (se for necessário)
     let concluidosContainer = document.querySelector('.exercicios-concluidos');
     if (!concluidosContainer) {
         concluidosContainer = document.createElement('div');
         concluidosContainer.classList.add('exercicios-concluidos');
         concluidosContainer.innerHTML = '<h2>✅ Concluídos</h2>';
-        // Adiciona o container no DOM para que a lógica de movimento funcione
         listaExercicios.parentNode.appendChild(concluidosContainer); 
     }
     
@@ -92,16 +135,12 @@ function carregarProgresso() {
         exerciciosConcluidos.forEach(id => {
             const card = document.querySelector(`.ficha-exercicio[data-id="${id}"]`);
             if (card) {
-                // Adiciona a classe 'concluido'
                 card.classList.add('concluido');
-                
-                // Atualiza o texto do botão
                 const botaoConcluido = card.querySelector('.btn-concluido');
                 if (botaoConcluido) {
                     botaoConcluido.textContent = 'Desmarcar';
                 }
 
-                // Move o card concluído para o container de concluídos
                 const hrAposCard = card.nextElementSibling;
                 concluidosContainer.appendChild(card);
                 if (hrAposCard && hrAposCard.tagName === 'HR') {
@@ -111,7 +150,6 @@ function carregarProgresso() {
         });
     }
 
-    // Remove o container de concluídos se ele estiver vazio após o carregamento
     if (concluidosContainer.querySelectorAll('.ficha-exercicio').length === 0) {
         concluidosContainer.remove();
     }
@@ -123,21 +161,14 @@ function salvarProgresso() {
     localStorage.setItem(PROGRESSO_KEY, JSON.stringify(exerciciosConcluidos));
 }
 
-
-// ==========================================================
-// 2. MARCAR CONCLUÍDO E MOVER CARD
-// ==========================================================
-
 function marcarConcluido(botao) {
     const card = botao.closest('.ficha-exercicio');
     const listaExerciciosContainer = document.querySelector('.lista-exercicios'); 
 
     if (!listaExerciciosContainer) return;
 
-    // Encontra a linha horizontal que está logo APÓS o card (se existir)
     const hrAposCard = card.nextElementSibling;
 
-    // Cria ou encontra o container de concluídos
     let concluidosContainer = document.querySelector('.exercicios-concluidos');
     if (!concluidosContainer) {
         concluidosContainer = document.createElement('div');
@@ -148,70 +179,55 @@ function marcarConcluido(botao) {
     
 
     if (card.classList.contains('concluido')) {
-        // --- AÇÃO: DESMARCAR (volta para a lista principal) ---
+        // --- AÇÃO: DESMARCAR ---
         card.classList.remove('concluido');
         botao.textContent = 'Concluído';
         
-        // Mover o card para o INÍCIO da lista principal
         listaExerciciosContainer.insertBefore(card, listaExerciciosContainer.firstChild); 
         
-        // Mover a HR para que ela fique depois do card na lista principal
         if (hrAposCard && hrAposCard.tagName === 'HR') {
              listaExerciciosContainer.insertBefore(hrAposCard, card.nextSibling); 
         }
 
     } else {
-        // --- AÇÃO: MARCAR (vai para o container de concluídos) ---
+        // --- AÇÃO: MARCAR ---
         card.classList.add('concluido');
         botao.textContent = 'Desmarcar';
         
-        // Opcional: Para o cronômetro de descanso se estiver rodando
+        // Para o cronômetro de descanso se estiver rodando
         clearInterval(intervalo);
         const cronometroSpan = card.querySelector('.cronometro');
         if (cronometroSpan) {
             cronometroSpan.textContent = '';
         }
         
-        // Mover o card para o FINAL do container de concluídos
         concluidosContainer.appendChild(card);
         
-        // Mover a HR para o FINAL do container de concluídos, após o card
         if (hrAposCard && hrAposCard.tagName === 'HR') {
              concluidosContainer.appendChild(hrAposCard);
         }
     }
     
-    // Salva a alteração
     salvarProgresso(); 
     
-    // Remove o container de concluídos se ele ficar vazio
     if (concluidosContainer.querySelectorAll('.ficha-exercicio').length === 0) {
         concluidosContainer.remove();
     }
 }
 
-
-// ==========================================================
-// 3. RESET DE PROGRESSO
-// ==========================================================
-
 function resetarProgresso() {
     if (confirm("Tem certeza que deseja resetar o progresso deste treino? Todos os exercícios serão desmarcados e o timer será parado.")) {
         
-        // Limpa o LocalStorage para a ficha atual
         localStorage.removeItem(PROGRESSO_KEY);
-        localStorage.removeItem(CARGAS_KEY); // NOVIDADE: Limpa também as cargas salvas
+        localStorage.removeItem(CARGAS_KEY); 
         
-        // Recarrega a página para restaurar a ordem original
         window.location.reload();
     }
 }
 
 
-// ==========================================================
-// 4. CRONÔMETRO DE DESCANSO
-// ==========================================================
-
-// ... (Mantenha o código do cronômetro da versão anterior) ...
-// (Para evitar que o código fique gigantesco, vou assumir que você tem a função iniciarCronometro em sua versão anterior)
-// Nota do sistema: O usuário deve garantir que a função iniciarCronometro esteja no arquivo.
+// Carrega o progresso e as cargas ao abrir a página
+document.addEventListener('DOMContentLoaded', () => {
+    carregarCargas();
+    carregarProgresso();
+});
