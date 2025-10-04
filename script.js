@@ -3,29 +3,15 @@ let intervalo;
 // Tempo padrão de descanso em segundos
 const tempoPadrao = 60; 
 
-// ==========================================================
-// FUNÇÕES DE ÁUDIO (NOVIDADE)
-// ==========================================================
-
-function tocarAlerta() {
-    // Tenta criar um novo objeto Audio
-    try {
-        // Você pode usar o som padrão de notificação do seu sistema ou um som simples.
-        // Este é um som de bip simples. Se quiser um som diferente, troque o URL.
-        const audio = new Audio('https://www.soundjay.com/button/beep-01a.mp3');
-        audio.play();
-    } catch (e) {
-        // No caso raro de o navegador bloquear o áudio, pelo menos o código não falha.
-        console.error("Erro ao tentar tocar o áudio:", e);
-    }
-}
+// Inicializa o objeto de áudio globalmente (tenta resolver a política de autoplay)
+// O som é um bip simples. Se quiser um som diferente, troque o URL.
+const audioAlerta = new Audio('https://www.soundjay.com/button/beep-01a.mp3');
 
 
 // ==========================================================
 // FUNÇÕES DE UTILIDADE E PERSISTÊNCIA
 // ==========================================================
 
-// Função para extrair o ID da ficha de treino atual (ex: 'treino-a')
 function getFichaId() {
     const nomeArquivo = window.location.pathname.split('/').pop();
     if (nomeArquivo === 'index.html' || nomeArquivo === '') {
@@ -35,19 +21,27 @@ function getFichaId() {
     } else if (nomeArquivo.includes('treino-c')) {
         return 'treino-c';
     }
-    return 'default'; // Fallback
+    return 'default';
 }
 
-// Chaves para armazenar dados no localStorage
 const PROGRESSO_KEY = getFichaId() + '-concluidos';
 const CARGAS_KEY = getFichaId() + '-cargas';
 
 // ==========================================================
-// FUNÇÕES DE CRONÔMETRO (ATUALIZADA)
+// FUNÇÕES DE CRONÔMETRO (CORRIGIDO PARA ÁUDIO)
 // ==========================================================
 
+function tocarAlerta() {
+    // Tenta reproduzir o som do começo
+    audioAlerta.currentTime = 0; 
+    audioAlerta.play().catch(e => {
+        // Captura o erro se o navegador bloquear, mas tenta reproduzir o som
+        console.warn("Áudio de alerta bloqueado pelo navegador. Tente interagir com a página primeiro.", e);
+    });
+}
+
+
 function iniciarCronometro(botao) {
-    // 1. Limpa qualquer cronômetro anterior
     if (intervalo) {
         clearInterval(intervalo);
     }
@@ -55,7 +49,6 @@ function iniciarCronometro(botao) {
     const card = botao.closest('.ficha-exercicio');
     if (!card) return;
 
-    // Procura o span onde o cronômetro será exibido
     const cronometroSpan = card.querySelector('.cronometro');
     if (!cronometroSpan) return;
 
@@ -64,26 +57,23 @@ function iniciarCronometro(botao) {
     // Configura o display inicial
     cronometroSpan.textContent = `Descanso: ${tempoRestante}s`;
     
-    // A função que será executada a cada 1 segundo
     intervalo = setInterval(() => {
         tempoRestante--;
 
         if (tempoRestante >= 0) {
-            // Atualiza o display
             cronometroSpan.textContent = `Descanso: ${tempoRestante}s`;
         } else {
-            // Quando o tempo zera:
             clearInterval(intervalo);
             cronometroSpan.textContent = 'PRONTO!';
             // TOCA O SINAL SONORO!
-            tocarAlerta();
+            tocarAlerta(); 
         }
-    }, 1000); // Executa a cada 1000 milissegundos (1 segundo)
+    }, 1000); 
 }
 
 
 // ==========================================================
-// FUNÇÕES DE CARGA E PROGRESSO
+// FUNÇÕES DE CARGA E PROGRESSO (Não alteradas, mas incluídas para completar)
 // ==========================================================
 
 function carregarCargas() {
@@ -109,9 +99,7 @@ function salvarCarga(inputElement) {
     const novaCarga = inputElement.value;
 
     let cargasAtuais = JSON.parse(localStorage.getItem(CARGAS_KEY)) || {};
-    
     cargasAtuais[idExercicio] = novaCarga;
-
     localStorage.setItem(CARGAS_KEY, JSON.stringify(cargasAtuais));
 }
 
@@ -195,7 +183,9 @@ function marcarConcluido(botao) {
         botao.textContent = 'Desmarcar';
         
         // Para o cronômetro de descanso se estiver rodando
-        clearInterval(intervalo);
+        if (intervalo) {
+            clearInterval(intervalo);
+        }
         const cronometroSpan = card.querySelector('.cronometro');
         if (cronometroSpan) {
             cronometroSpan.textContent = '';
