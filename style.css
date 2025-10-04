@@ -276,3 +276,40 @@ hr {
         flex-grow: 0; /* Impede que eles se estiquem e ocupem todo o espaço */
     }
 }
+/* --- Novo Estilo para o Botão de Reset --- */
+
+.btn-reset {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #e74c3c; /* Vermelho/Aviso */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+.btn-reset:hover {
+    background-color: #c0392b;
+}
+
+/* --- Novo Estilo para a seção de Concluídos --- */
+
+/* Estilo para a área que conterá os exercícios concluídos */
+.exercicios-concluidos {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #ccc;
+    opacity: 0.8; /* Diminui um pouco a opacidade para parecer 'finalizado' */
+}
+
+.exercicios-concluidos h2 {
+    color: #27ae60; /* Verde para destacar a conclusão */
+    text-align: center;
+    margin-bottom: 20px;
+}
