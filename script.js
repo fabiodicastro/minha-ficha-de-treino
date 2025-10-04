@@ -10,13 +10,16 @@ document.addEventListener('DOMContentLoaded', carregarProgresso);
 
 function carregarProgresso() {
     // A chave de salvamento depende do nome do arquivo (ex: index.html, treino-b.html)
+    // Isso garante que o progresso do Treino A não interfira no Treino B, e vice-versa.
     const nomeFicha = window.location.pathname.split('/').pop() || 'index.html';
     const progressoSalvo = localStorage.getItem(nomeFicha);
 
     if (progressoSalvo) {
+        // Converte a string JSON salva em uma lista de IDs de exercícios
         const exerciciosConcluidos = JSON.parse(progressoSalvo);
         
         exerciciosConcluidos.forEach(id => {
+            // Busca o cartão de exercício pelo ID (ex: "a-ex1", "b-ex5")
             const card = document.querySelector(`.ficha-exercicio[data-id="${id}"]`);
             if (card) {
                 // Adiciona a classe 'concluido' no carregamento
@@ -33,13 +36,13 @@ function carregarProgresso() {
 }
 
 function salvarProgresso() {
-    // 1. Encontra todos os exercícios concluídos na página
+    // 1. Encontra todos os exercícios que possuem a classe 'concluido'
     const cardsConcluidos = document.querySelectorAll('.ficha-exercicio.concluido');
     
-    // 2. Extrai os IDs de cada exercício concluído
+    // 2. Extrai os valores do atributo data-id de cada exercício concluído
     const exerciciosConcluidos = Array.from(cardsConcluidos).map(card => card.dataset.id);
 
-    // 3. Salva a lista de IDs no localStorage com base no nome do arquivo
+    // 3. Salva a lista de IDs no localStorage com base no nome do arquivo (chave)
     const nomeFicha = window.location.pathname.split('/').pop() || 'index.html';
     localStorage.setItem(nomeFicha, JSON.stringify(exerciciosConcluidos));
 }
@@ -67,7 +70,7 @@ function marcarConcluido(botao) {
         }
     }
     
-    // NOVIDADE: Chama a função para salvar a alteração
+    // NOVIDADE: Chama a função para salvar a alteração no progresso
     salvarProgresso(); 
 }
 
