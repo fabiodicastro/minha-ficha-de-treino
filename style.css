@@ -1,4 +1,221 @@
 /* ================================================= */
+/* ESTILOS BASE (DESKTOP) */
+/* ================================================= */
+
+/* Estilo para o corpo da página */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #e9ecef;
+    color: #495057;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Estilo para o cabeçalho do menu */
+header {
+    background-color: #343a40; /* Fundo escuro */
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo para a lista de navegação */
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Estilo para os links do menu (os botões) */
+nav ul li a {
+    color: #f8f9fa;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 10px 25px;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    background-color: #007bff;
+    transition: background-color 0.3s, transform 0.3s;
+    text-transform: uppercase;
+}
+
+/* Efeito ao passar o mouse sobre os botões */
+nav ul li a:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Estilo para o cabeçalho principal */
+h1 {
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+/* Estilo para os cards de exercício */
+.ficha-exercicio {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-bottom: 30px;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Efeito ao passar o mouse sobre o card */
+.ficha-exercicio:hover {
+    transform: translateY(-5px);
+}
+
+/* Estilo para os títulos dos exercícios */
+.ficha-exercicio h2 {
+    color: #6c757d;
+    font-size: 1.8em;
+    margin-top: 0;
+}
+
+/* Estilo para o container dos vídeos, garantindo que sejam responsivos */
+.video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Proporção de aspecto 16:9 */
+    height: 0;
+    margin-top: 20px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Estilo para as linhas de separação */
+hr {
+    border: none;
+    height: 1px;
+    background-color: #ddd;
+    margin: 40px 0;
+}
+
+
+/* ================================================= */
+/* ESTILOS PARA OS BOTÕES DE CONTROLE (CONCLUÍDO/DESCANSO) */
+/* ================================================= */
+
+/* Estilos para os controles dos exercícios */
+.controles-exercicio {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Estilo padrão para botões */
+.controles-exercicio button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+/* Estilo para o botão de Concluído */
+.btn-concluido {
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+
+.btn-concluido:hover {
+    background-color: #1e7e34;
+}
+
+/* Estilo para o botão de Descanso (Cronômetro) */
+.btn-descanso {
+    background-color: #ffc107; /* Amarelo/Alerta */
+    color: #343a40;
+}
+
+.btn-descanso:hover {
+    background-color: #e0a800;
+}
+
+/* Estilo para a classe "concluido" (adicionada pelo JS) */
+.ficha-exercicio.concluido {
+    background-color: #e6ffe6;
+    border: 1px solid #28a745;
+    opacity: 0.8;
+}
+
+.ficha-exercicio.concluido h2 {
+    text-decoration: line-through;
+    color: #28a745;
+}
+
+/* Estilo para o cronômetro */
+.cronometro {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+
+/* ================================================= */
+/* NOVOS ESTILOS PARA AS METAS (BADGES/ETIQUETAS) */
+/* ================================================= */
+
+/* Estilo para a seção de Metas (Séries, Repetições, Carga) */
+.metas-exercicio {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 10px;
+    margin: 15px 0;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+/* Estilo para cada etiqueta (Badge) - AGORA PRETO E BRANCO FORÇADO */
+.badge {
+    background-color: #212529 !important; /* PRETO bem escuro FORÇADO */
+    color: #ffffff !important; /* TEXTO BRANCO FORÇADO */
+    padding: 8px 12px; 
+    border-radius: 8px;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Destaque para a Carga - AGORA PRETO FORÇADO */
+.badge.carga {
+    background-color: #212529 !important; /* PRETO FORÇADO também na Carga */
+    color: white !important;
+}
+
+/* Efeito ao passar o mouse */
+.badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+/* ================================================= */
 /* ESTILOS RESPONSIVOS (CELULARES E TABLETS) */
 /* ================================================= */
 
@@ -47,15 +264,15 @@
     
     /* 6. CORREÇÃO: Ajuste dos Badges (Etiquetas) para Celular */
     .metas-exercicio {
-        /* Permite que eles fiquem lado a lado se couberem, mas quebrem a linha */
+        /* Permite que eles fiquem lado a lado e quebrem a linha */
         flex-direction: row; 
         justify-content: flex-start;
         flex-wrap: wrap; /* Importante para quebrar a linha */
         width: 100%;
     }
     .badge {
-        /* Removemos o width: 100% aqui! */
+        /* REMOVEMOS O WIDTH: 100% PARA QUE FIQUEM PEQUENOS */
         padding: 10px;
-        flex-grow: 0; /* Impede que eles se estiquem */
+        flex-grow: 0; /* Impede que eles se estiquem e ocupem todo o espaço */
     }
 }
