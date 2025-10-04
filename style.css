@@ -313,3 +313,28 @@ hr {
     text-align: center;
     margin-bottom: 20px;
 }
+/* ================================================= */
+/* ESTILOS PARA INPUTS DE CARGA (Para manter o visual de badge) */
+/* ================================================= */
+
+.badge.carga {
+    /* Sobrescreve as regras padrão do navegador para inputs */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none; 
+    
+    /* Garante que o input herde a cor e o estilo do badge */
+    border: none; 
+    text-align: center; 
+    cursor: pointer;
+    
+    /* Cor de fundo e texto já definidas no .badge.carga do código anterior */
+}
+
+/* Garante que o campo de texto se ajuste bem no celular */
+@media (max-width: 768px) {
+    .badge.carga {
+        /* Permite que o campo de texto ocupe mais espaço quando empilhado */
+        width: 100%; 
+    }
+}
