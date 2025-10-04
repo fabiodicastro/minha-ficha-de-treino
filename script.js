@@ -3,32 +3,37 @@ let intervalo;
 const tempoPadrao = 60; // 60 segundos (tempo de descanso)
 
 
-// --- 1. FUNÇÃO PARA SALVAR E CARREGAR PROGRESSO (PERSISTÊNCIA) ---
+// ==========================================================
+// 1. PERSISTÊNCIA DE DADOS (CARREGAR E SALVAR PROGRESSO)
+// ==========================================================
 
-// Função principal para carregar o progresso ao abrir a página
+// Carrega o progresso ao abrir a página
 document.addEventListener('DOMContentLoaded', carregarProgresso);
 
 function carregarProgresso() {
-    // A chave de salvamento depende do nome do arquivo (ex: index.html, treino-b.html)
-    // Isso garante que o progresso do Treino A não interfira no Treino B, e vice-versa.
+    // Usa o nome do arquivo (ex: index.html) como chave para o localStorage
     const nomeFicha = window.location.pathname.split('/').pop() || 'index.html';
     const progressoSalvo = localStorage.getItem(nomeFicha);
+    const listaExercicios = document.querySelector('.lista-exercicios');
 
     if (progressoSalvo) {
-        // Converte a string JSON salva em uma lista de IDs de exercícios
         const exerciciosConcluidos = JSON.parse(progressoSalvo);
         
         exerciciosConcluidos.forEach(id => {
-            // Busca o cartão de exercício pelo ID (ex: "a-ex1", "b-ex5")
             const card = document.querySelector(`.ficha-exercicio[data-id="${id}"]`);
             if (card) {
-                // Adiciona a classe 'concluido' no carregamento
+                // Adiciona a classe 'concluido'
                 card.classList.add('concluido');
                 
                 // Atualiza o texto do botão
                 const botaoConcluido = card.querySelector('.btn-concluido');
                 if (botaoConcluido) {
                     botaoConcluido.textContent = 'Desmarcar';
+                }
+
+                // Move o card concluído para o final da lista ao carregar
+                if (listaExercicios) {
+                     listaExercicios.appendChild(card);
                 }
             }
         });
@@ -39,26 +44,37 @@ function salvarProgresso() {
     // 1. Encontra todos os exercícios que possuem a classe 'concluido'
     const cardsConcluidos = document.querySelectorAll('.ficha-exercicio.concluido');
     
-    // 2. Extrai os valores do atributo data-id de cada exercício concluído
+    // 2. Extrai os valores do atributo data-id
     const exerciciosConcluidos = Array.from(cardsConcluidos).map(card => card.dataset.id);
 
-    // 3. Salva a lista de IDs no localStorage com base no nome do arquivo (chave)
+    // 3. Salva a lista de IDs no localStorage
     const nomeFicha = window.location.pathname.split('/').pop() || 'index.html';
     localStorage.setItem(nomeFicha, JSON.stringify(exerciciosConcluidos));
 }
 
 
-// --- 2. FUNÇÃO MARCAR CONCLUÍDO (ATUALIZADA) ---
+// ==========================================================
+// 2. MARCAR CONCLUÍDO E MOVER CARD
+// ==========================================================
 
 function marcarConcluido(botao) {
     const card = botao.closest('.ficha-exercicio');
-    
+    // Busca o container correto de exercícios para movimentação
+    const listaExercicios = document.querySelector('.lista-exercicios'); 
+
+    if (!listaExercicios) return; // Parada de segurança
+
     if (card.classList.contains('concluido')) {
-        // Desmarca
+        // --- AÇÃO: DESMARCAR (volta para o topo) ---
         card.classList.remove('concluido');
         botao.textContent = 'Concluído';
+        
+        // Mover para o INÍCIO da lista
+        // Insere o card antes do primeiro card existente no container
+        listaExercicios.insertBefore(card, listaExercicios.firstChild); 
+        
     } else {
-        // Marca
+        // --- AÇÃO: MARCAR (vai para o fim) ---
         card.classList.add('concluido');
         botao.textContent = 'Desmarcar';
         
@@ -68,14 +84,19 @@ function marcarConcluido(botao) {
         if (cronometroSpan) {
             cronometroSpan.textContent = '';
         }
+        
+        // Mover para o FINAL da lista
+        listaExercicios.appendChild(card);
     }
     
-    // NOVIDADE: Chama a função para salvar a alteração no progresso
+    // Salva a alteração
     salvarProgresso(); 
 }
 
 
-// --- 3. FUNÇÃO CRONÔMETRO DE DESCANSO (INALTERADA) ---
+// ==========================================================
+// 3. CRONÔMETRO DE DESCANSO
+// ==========================================================
 
 function iniciarCronometro(botao) {
     // 1. Limpa qualquer cronômetro anterior para evitar que vários rodem
