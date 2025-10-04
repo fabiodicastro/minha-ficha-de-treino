@@ -1,49 +1,51 @@
 // VARIÁVEL GLOBAL PARA O CRONÔMETRO
 let intervalo;
-// Tempo padrão de descanso em segundos
 const tempoPadrao = 60; 
 
-// Inicializa o objeto de áudio globalmente (tenta resolver a política de autoplay)
-// O som é um bip simples. Se quiser um som diferente, troque o URL.
+// Inicializa o objeto de áudio globalmente
 const audioAlerta = new Audio('https://www.soundjay.com/button/beep-01a.mp3');
+let audioDesbloqueado = false; // NOVA VARIÁVEL DE CONTROLE
 
 
 // ==========================================================
-// FUNÇÕES DE UTILIDADE E PERSISTÊNCIA
-// ==========================================================
-
-function getFichaId() {
-    const nomeArquivo = window.location.pathname.split('/').pop();
-    if (nomeArquivo === 'index.html' || nomeArquivo === '') {
-        return 'treino-a';
-    } else if (nomeArquivo.includes('treino-b')) {
-        return 'treino-b';
-    } else if (nomeArquivo.includes('treino-c')) {
-        return 'treino-c';
-    }
-    return 'default';
-}
-
-const PROGRESSO_KEY = getFichaId() + '-concluidos';
-const CARGAS_KEY = getFichaId() + '-cargas';
-
-// ==========================================================
-// FUNÇÕES DE CRONÔMETRO (CORRIGIDO PARA ÁUDIO)
+// FUNÇÕES DE CRONÔMETRO (SOLUÇÃO FINAL DE ÁUDIO)
 // ==========================================================
 
 function tocarAlerta() {
     // Tenta reproduzir o som do começo
     audioAlerta.currentTime = 0; 
     audioAlerta.play().catch(e => {
-        // Captura o erro se o navegador bloquear, mas tenta reproduzir o som
-        console.warn("Áudio de alerta bloqueado pelo navegador. Tente interagir com a página primeiro.", e);
+        // O console.warn deve parar de aparecer depois da primeira interação
+        console.warn("Áudio de alerta bloqueado ou falhou na reprodução.", e);
     });
+}
+
+// NOVIDADE: Função para garantir que o áudio seja desbloqueado
+function desbloquearAudio() {
+    if (!audioDesbloqueado) {
+        // Tenta tocar e pausar imediatamente com um clique simulado
+        audioAlerta.play().then(() => {
+            audioAlerta.pause();
+            audioDesbloqueado = true;
+            console.log("Áudio desbloqueado!");
+        }).catch(e => {
+            console.warn("Falha no desbloqueio silencioso do áudio, mas continuando...", e);
+        });
+    }
 }
 
 
 function iniciarCronometro(botao) {
+    // 1. Tenta desbloquear o áudio a cada clique (só funcionará na primeira)
+    desbloquearAudio(); 
+
     if (intervalo) {
         clearInterval(intervalo);
+        intervalo = null; // Limpa a variável
+        botao.textContent = `Descanso (${tempoPadrao}s)`;
+        const cronometroSpan = botao.closest('.ficha-exercicio').querySelector('.cronometro');
+        if (cronometroSpan) cronometroSpan.textContent = '';
+        return;
     }
 
     const card = botao.closest('.ficha-exercicio');
@@ -56,6 +58,7 @@ function iniciarCronometro(botao) {
     
     // Configura o display inicial
     cronometroSpan.textContent = `Descanso: ${tempoRestante}s`;
+    botao.textContent = 'Pausar';
     
     intervalo = setInterval(() => {
         tempoRestante--;
@@ -64,160 +67,21 @@ function iniciarCronometro(botao) {
             cronometroSpan.textContent = `Descanso: ${tempoRestante}s`;
         } else {
             clearInterval(intervalo);
+            intervalo = null;
             cronometroSpan.textContent = 'PRONTO!';
             // TOCA O SINAL SONORO!
             tocarAlerta(); 
+            botao.textContent = `Descanso (${tempoPadrao}s)`;
         }
     }, 1000); 
 }
 
-
-// ==========================================================
-// FUNÇÕES DE CARGA E PROGRESSO (Não alteradas, mas incluídas para completar)
-// ==========================================================
-
-function carregarCargas() {
-    const cargasSalvas = localStorage.getItem(CARGAS_KEY);
-    if (!cargasSalvas) return;
-
-    const cargas = JSON.parse(cargasSalvas);
-    
-    for (const idExercicio in cargas) {
-        const inputCarga = document.querySelector(`.ficha-exercicio[data-id="${idExercicio}"] .badge.carga`);
-        
-        if (inputCarga) {
-            inputCarga.value = cargas[idExercicio];
-        }
-    }
-}
-
-function salvarCarga(inputElement) {
-    const card = inputElement.closest('.ficha-exercicio');
-    if (!card) return;
-
-    const idExercicio = card.dataset.id;
-    const novaCarga = inputElement.value;
-
-    let cargasAtuais = JSON.parse(localStorage.getItem(CARGAS_KEY)) || {};
-    cargasAtuais[idExercicio] = novaCarga;
-    localStorage.setItem(CARGAS_KEY, JSON.stringify(cargasAtuais));
-}
-
-function carregarProgresso() {
-    const progressoSalvo = localStorage.getItem(PROGRESSO_KEY);
-    const listaExercicios = document.querySelector('.lista-exercicios');
-
-    if (!listaExercicios) return; 
-
-    let concluidosContainer = document.querySelector('.exercicios-concluidos');
-    if (!concluidosContainer) {
-        concluidosContainer = document.createElement('div');
-        concluidosContainer.classList.add('exercicios-concluidos');
-        concluidosContainer.innerHTML = '<h2>✅ Concluídos</h2>';
-        listaExercicios.parentNode.appendChild(concluidosContainer); 
-    }
-    
-    if (progressoSalvo) {
-        const exerciciosConcluidos = JSON.parse(progressoSalvo);
-        
-        exerciciosConcluidos.forEach(id => {
-            const card = document.querySelector(`.ficha-exercicio[data-id="${id}"]`);
-            if (card) {
-                card.classList.add('concluido');
-                const botaoConcluido = card.querySelector('.btn-concluido');
-                if (botaoConcluido) {
-                    botaoConcluido.textContent = 'Desmarcar';
-                }
-
-                const hrAposCard = card.nextElementSibling;
-                concluidosContainer.appendChild(card);
-                if (hrAposCard && hrAposCard.tagName === 'HR') {
-                    concluidosContainer.appendChild(hrAposCard);
-                }
-            }
-        });
-    }
-
-    if (concluidosContainer.querySelectorAll('.ficha-exercicio').length === 0) {
-        concluidosContainer.remove();
-    }
-}
-
-function salvarProgresso() {
-    const cardsConcluidos = document.querySelectorAll('.ficha-exercicio.concluido');
-    const exerciciosConcluidos = Array.from(cardsConcluidos).map(card => card.dataset.id);
-    localStorage.setItem(PROGRESSO_KEY, JSON.stringify(exerciciosConcluidos));
-}
-
-function marcarConcluido(botao) {
-    const card = botao.closest('.ficha-exercicio');
-    const listaExerciciosContainer = document.querySelector('.lista-exercicios'); 
-
-    if (!listaExerciciosContainer) return;
-
-    const hrAposCard = card.nextElementSibling;
-
-    let concluidosContainer = document.querySelector('.exercicios-concluidos');
-    if (!concluidosContainer) {
-        concluidosContainer = document.createElement('div');
-        concluidosContainer.classList.add('exercicios-concluidos');
-        concluidosContainer.innerHTML = '<h2>✅ Concluídos</h2>';
-        listaExerciciosContainer.parentNode.appendChild(concluidosContainer);
-    }
-    
-
-    if (card.classList.contains('concluido')) {
-        // --- AÇÃO: DESMARCAR ---
-        card.classList.remove('concluido');
-        botao.textContent = 'Concluído';
-        
-        listaExerciciosContainer.insertBefore(card, listaExerciciosContainer.firstChild); 
-        
-        if (hrAposCard && hrAposCard.tagName === 'HR') {
-             listaExerciciosContainer.insertBefore(hrAposCard, card.nextSibling); 
-        }
-
-    } else {
-        // --- AÇÃO: MARCAR ---
-        card.classList.add('concluido');
-        botao.textContent = 'Desmarcar';
-        
-        // Para o cronômetro de descanso se estiver rodando
-        if (intervalo) {
-            clearInterval(intervalo);
-        }
-        const cronometroSpan = card.querySelector('.cronometro');
-        if (cronometroSpan) {
-            cronometroSpan.textContent = '';
-        }
-        
-        concluidosContainer.appendChild(card);
-        
-        if (hrAposCard && hrAposCard.tagName === 'HR') {
-             concluidosContainer.appendChild(hrAposCard);
-        }
-    }
-    
-    salvarProgresso(); 
-    
-    if (concluidosContainer.querySelectorAll('.ficha-exercicio').length === 0) {
-        concluidosContainer.remove();
-    }
-}
-
-function resetarProgresso() {
-    if (confirm("Tem certeza que deseja resetar o progresso deste treino? Todos os exercícios serão desmarcados e o timer será parado.")) {
-        
-        localStorage.removeItem(PROGRESSO_KEY);
-        localStorage.removeItem(CARGAS_KEY); 
-        
-        window.location.reload();
-    }
-}
-
+// ... (Mantenha todas as outras funções: getFichaId, carregarCargas, salvarCarga, carregarProgresso, salvarProgresso, marcarConcluido, resetarProgresso) ...
 
 // Carrega o progresso e as cargas ao abrir a página
 document.addEventListener('DOMContentLoaded', () => {
     carregarCargas();
     carregarProgresso();
+    // NOVIDADE: Adiciona um listener para tentar desbloquear o áudio no primeiro clique em qualquer lugar
+    document.body.addEventListener('click', desbloquearAudio, { once: true });
 });
