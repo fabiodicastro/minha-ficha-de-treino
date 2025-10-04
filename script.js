@@ -16,6 +16,8 @@ function carregarProgresso() {
     const progressoSalvo = localStorage.getItem(nomeFicha);
     const listaExercicios = document.querySelector('.lista-exercicios');
 
+    if (!listaExercicios) return; // Parada de segurança
+
     if (progressoSalvo) {
         const exerciciosConcluidos = JSON.parse(progressoSalvo);
         
@@ -32,8 +34,12 @@ function carregarProgresso() {
                 }
 
                 // Move o card concluído para o final da lista ao carregar
-                if (listaExercicios) {
-                     listaExercicios.appendChild(card);
+                listaExercicios.appendChild(card);
+                
+                // Move a HR após o card também (se existir)
+                const hrAposCard = card.nextElementSibling;
+                if (hrAposCard && hrAposCard.tagName === 'HR') {
+                    listaExercicios.appendChild(hrAposCard);
                 }
             }
         });
@@ -54,25 +60,31 @@ function salvarProgresso() {
 
 
 // ==========================================================
-// 2. MARCAR CONCLUÍDO E MOVER CARD
+// 2. MARCAR CONCLUÍDO E MOVER CARD (MOVIMENTAÇÃO)
 // ==========================================================
 
 function marcarConcluido(botao) {
     const card = botao.closest('.ficha-exercicio');
-    // Busca o container correto de exercícios para movimentação
     const listaExercicios = document.querySelector('.lista-exercicios'); 
 
-    if (!listaExercicios) return; // Parada de segurança
+    if (!listaExercicios) return;
+
+    // Encontra a linha horizontal que está logo APÓS o card (se existir)
+    const hrAposCard = card.nextElementSibling;
 
     if (card.classList.contains('concluido')) {
         // --- AÇÃO: DESMARCAR (volta para o topo) ---
         card.classList.remove('concluido');
         botao.textContent = 'Concluído';
         
-        // Mover para o INÍCIO da lista
-        // Insere o card antes do primeiro card existente no container
+        // Mover o card para o INÍCIO da lista
         listaExercicios.insertBefore(card, listaExercicios.firstChild); 
         
+        // Mover a HR para que ela fique depois do card, se ela for a próxima
+        if (hrAposCard && hrAposCard.tagName === 'HR') {
+             listaExercicios.insertBefore(hrAposCard, card.nextSibling); 
+        }
+
     } else {
         // --- AÇÃO: MARCAR (vai para o fim) ---
         card.classList.add('concluido');
@@ -85,8 +97,13 @@ function marcarConcluido(botao) {
             cronometroSpan.textContent = '';
         }
         
-        // Mover para o FINAL da lista
+        // Mover o card para o FINAL da lista
         listaExercicios.appendChild(card);
+        
+        // Mover a HR para o FINAL da lista, após o card
+        if (hrAposCard && hrAposCard.tagName === 'HR') {
+             listaExercicios.appendChild(hrAposCard);
+        }
     }
     
     // Salva a alteração
