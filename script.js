@@ -1,150 +1,195 @@
-// VARIÁVEL GLOBAL PARA O CRONÔMETRO
-let intervalo;
-const tempoPadrao = 60; // 60 segundos (tempo de descanso)
+// Função para extrair o ID da ficha de treino atual (ex: 'treino-a', 'treino-b')
+function getFichaId() {
+    // Ex: index.html -> treino-a; treino-b.html -> treino-b
+    const nomeArquivo = window.location.pathname.split('/').pop();
+    if (nomeArquivo === 'index.html' || nomeArquivo === '') {
+        return 'treino-a';
+    } else if (nomeArquivo.includes('treino-b')) {
+        return 'treino-b';
+    } else if (nomeArquivo.includes('treino-c')) {
+        return 'treino-c';
+    }
+    return 'default'; // Fallback
+}
+
+// Chave para armazenar o progresso no localStorage (será 'treino-a-concluidos' etc.)
+const STORAGE_KEY = getFichaId() + '-concluidos';
 
 
-// ==========================================================
-// 1. PERSISTÊNCIA DE DADOS (CARREGAR E SALVAR PROGRESSO)
-// ==========================================================
+// Função para salvar o progresso atual no LocalStorage
+function salvarProgresso(concluidos) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(concluidos));
+}
 
-// Carrega o progresso ao abrir a página
-document.addEventListener('DOMContentLoaded', carregarProgresso);
-
+// Função para carregar o progresso do LocalStorage
 function carregarProgresso() {
-    // Usa o nome do arquivo (ex: index.html) como chave para o localStorage
-    const nomeFicha = window.location.pathname.split('/').pop() || 'index.html';
-    const progressoSalvo = localStorage.getItem(nomeFicha);
     const listaExercicios = document.querySelector('.lista-exercicios');
+    if (!listaExercicios) {
+        console.error("Container '.lista-exercicios' não encontrado.");
+        return;
+    }
 
-    if (!listaExercicios) return; // Parada de segurança
+    const progressoSalvo = localStorage.getItem(STORAGE_KEY);
+    if (!progressoSalvo) {
+        return;
+    }
 
-    if (progressoSalvo) {
-        const exerciciosConcluidos = JSON.parse(progressoSalvo);
+    const concluidos = JSON.parse(progressoSalvo);
+    const concluidosContainer = document.createElement('div');
+    concluidosContainer.classList.add('exercicios-concluidos');
+    
+    // Adiciona o cabeçalho "Concluídos"
+    const h2Concluidos = document.createElement('h2');
+    h2Concluidos.textContent = "✅ Concluídos";
+    concluidosContainer.appendChild(h2Concluidos);
+
+    // Mapeia todos os exercícios da lista
+    const todosExercicios = Array.from(listaExercicios.querySelectorAll('.ficha-exercicio'));
+    
+    // Move os exercícios concluídos para o novo container
+    concluidos.forEach(idConcluido => {
+        const exercicioDiv = listaExercicios.querySelector(`.ficha-exercicio[data-id="${idConcluido}"]`);
         
-        exerciciosConcluidos.forEach(id => {
-            const card = document.querySelector(`.ficha-exercicio[data-id="${id}"]`);
-            if (card) {
-                // Adiciona a classe 'concluido'
-                card.classList.add('concluido');
-                
-                // Atualiza o texto do botão
-                const botaoConcluido = card.querySelector('.btn-concluido');
-                if (botaoConcluido) {
-                    botaoConcluido.textContent = 'Desmarcar';
-                }
-
-                // Move o card concluído para o final da lista ao carregar
-                listaExercicios.appendChild(card);
-                
-                // Move a HR após o card também (se existir)
-                const hrAposCard = card.nextElementSibling;
-                if (hrAposCard && hrAposCard.tagName === 'HR') {
-                    listaExercicios.appendChild(hrAposCard);
-                }
+        if (exercicioDiv) {
+            exercicioDiv.classList.add('concluido');
+            
+            // Move o exercício e a linha divisória (hr) que o segue
+            const hrElement = exercicioDiv.nextElementSibling;
+            
+            concluidosContainer.appendChild(exercicioDiv);
+            if (hrElement && hrElement.tagName === 'HR') {
+                concluidosContainer.appendChild(hrElement);
             }
-        });
+        }
+    });
+
+    // Anexa o container de concluídos à página, logo após a lista principal
+    if (concluidos.length > 0) {
+        listaExercicios.parentNode.appendChild(concluidosContainer);
     }
 }
 
-function salvarProgresso() {
-    // 1. Encontra todos os exercícios que possuem a classe 'concluido'
-    const cardsConcluidos = document.querySelectorAll('.ficha-exercicio.concluido');
-    
-    // 2. Extrai os valores do atributo data-id
-    const exerciciosConcluidos = Array.from(cardsConcluidos).map(card => card.dataset.id);
-
-    // 3. Salva a lista de IDs no localStorage
-    const nomeFicha = window.location.pathname.split('/').pop() || 'index.html';
-    localStorage.setItem(nomeFicha, JSON.stringify(exerciciosConcluidos));
-}
-
-
-// ==========================================================
-// 2. MARCAR CONCLUÍDO E MOVER CARD (MOVIMENTAÇÃO)
-// ==========================================================
-
+// Função para marcar/desmarcar o exercício como concluído
 function marcarConcluido(botao) {
-    const card = botao.closest('.ficha-exercicio');
-    const listaExercicios = document.querySelector('.lista-exercicios'); 
+    const ficha = botao.closest('.ficha-exercicio');
+    if (!ficha) return;
 
-    if (!listaExercicios) return;
+    const idExercicio = ficha.dataset.id;
+    let progressoAtual = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
-    // Encontra a linha horizontal que está logo APÓS o card (se existir)
-    const hrAposCard = card.nextElementSibling;
+    // O elemento 'hr' é o irmão logo após o 'div.ficha-exercicio'
+    const hrElement = ficha.nextElementSibling;
+    const listaExerciciosContainer = document.querySelector('.lista-exercicios');
 
-    if (card.classList.contains('concluido')) {
-        // --- AÇÃO: DESMARCAR (volta para o topo) ---
-        card.classList.remove('concluido');
-        botao.textContent = 'Concluído';
+    // Cria ou encontra o container de concluídos
+    let concluidosContainer = document.querySelector('.exercicios-concluidos');
+    if (!concluidosContainer) {
+        concluidosContainer = document.createElement('div');
+        concluidosContainer.classList.add('exercicios-concluidos');
         
-        // Mover o card para o INÍCIO da lista
-        listaExercicios.insertBefore(card, listaExercicios.firstChild); 
+        // Adiciona o cabeçalho "Concluídos"
+        const h2Concluidos = document.createElement('h2');
+        h2Concluidos.textContent = "✅ Concluídos";
+        concluidosContainer.appendChild(h2Concluidos);
         
-        // Mover a HR para que ela fique depois do card, se ela for a próxima
-        if (hrAposCard && hrAposCard.tagName === 'HR') {
-             listaExercicios.insertBefore(hrAposCard, card.nextSibling); 
+        listaExerciciosContainer.parentNode.appendChild(concluidosContainer);
+    }
+
+
+    if (ficha.classList.contains('concluido')) {
+        // Desmarcar e mover de volta para a lista principal
+        ficha.classList.remove('concluido');
+        progressoAtual = progressoAtual.filter(id => id !== idExercicio);
+
+        // Move o item e a linha para o final da lista principal
+        listaExerciciosContainer.appendChild(ficha);
+        if (hrElement && hrElement.tagName === 'HR') {
+            listaExerciciosContainer.appendChild(hrElement);
         }
 
     } else {
-        // --- AÇÃO: MARCAR (vai para o fim) ---
-        card.classList.add('concluido');
-        botao.textContent = 'Desmarcar';
-        
-        // Opcional: Para o cronômetro de descanso se estiver rodando
-        clearInterval(intervalo);
-        const cronometroSpan = card.querySelector('.cronometro');
-        if (cronometroSpan) {
-            cronometroSpan.textContent = '';
+        // Marcar e mover para o container de concluídos
+        ficha.classList.add('concluido');
+        if (!progressoAtual.includes(idExercicio)) {
+            progressoAtual.push(idExercicio);
         }
-        
-        // Mover o card para o FINAL da lista
-        listaExercicios.appendChild(card);
-        
-        // Mover a HR para o FINAL da lista, após o card
-        if (hrAposCard && hrAposCard.tagName === 'HR') {
-             listaExercicios.appendChild(hrAposCard);
+
+        // Move o item e a linha para o final do container de concluídos
+        concluidosContainer.appendChild(ficha);
+        if (hrElement && hrElement.tagName === 'HR') {
+            concluidosContainer.appendChild(hrElement);
         }
     }
-    
-    // Salva a alteração
-    salvarProgresso(); 
+
+    // Salva o novo estado
+    salvarProgresso(progressoAtual);
+
+    // Remove o container de concluídos se ele ficar vazio
+    if (concluidosContainer.querySelectorAll('.ficha-exercicio').length === 0) {
+        concluidosContainer.remove();
+    }
+}
+
+// NOVA FUNÇÃO DE RESET
+function resetarProgresso() {
+    if (confirm("Tem certeza que deseja resetar o progresso deste treino? Todos os exercícios serão desmarcados e o timer será parado.")) {
+        
+        // 1. Limpa o LocalStorage para a ficha atual
+        localStorage.removeItem(STORAGE_KEY);
+        
+        // 2. Remove o container de concluídos da tela (se existir)
+        const concluidosContainer = document.querySelector('.exercicios-concluidos');
+        if (concluidosContainer) {
+            concluidosContainer.remove();
+        }
+
+        // 3. Reinicia a página para recarregar a lista em sua ordem original
+        window.location.reload();
+    }
 }
 
 
-// ==========================================================
-// 3. CRONÔMETRO DE DESCANSO
-// ==========================================================
+// Funções de Cronômetro (mantidas do código anterior)
+let cronometros = {};
+let intervalos = {};
 
 function iniciarCronometro(botao) {
-    // 1. Limpa qualquer cronômetro anterior para evitar que vários rodem
-    clearInterval(intervalo);
+    const ficha = botao.closest('.ficha-exercicio');
+    const idExercicio = ficha.dataset.id;
+    const cronometroSpan = ficha.querySelector('.cronometro');
 
-    // 2. Encontra o elemento <span> para exibir o tempo
-    const cronometroSpan = botao.parentNode.querySelector('.cronometro');
-    let tempoRestante = tempoPadrao;
-
-    // 3. Função para atualizar o tempo
-    function atualizarCronometro() {
-        if (tempoRestante <= 0) {
-            clearInterval(intervalo);
-            cronometroSpan.textContent = "DESCANSO CONCLUÍDO!";
-            cronometroSpan.style.color = 'green';
-            botao.textContent = 'Descanso (60s)';
-            return;
-        }
-
-        // Formata o tempo para exibir MM:SS
-        const minutos = Math.floor(tempoRestante / 60);
-        const segundos = tempoRestante % 60;
-        const segundosFormatados = segundos < 10 ? '0' + segundos : segundos;
-        
-        cronometroSpan.textContent = `Descanso: ${minutos}:${segundosFormatados}`;
-        cronometroSpan.style.color = '#dc3545'; // Cor de alerta
-        tempoRestante--;
+    // Pega o tempo de descanso do texto do botão (ex: 'Descanso (60s)' -> 60)
+    const tempoTotal = parseInt(botao.textContent.match(/\d+/)[0]);
+    
+    // Se o cronômetro já estiver rodando, apenas o para
+    if (intervalos[idExercicio]) {
+        clearInterval(intervalos[idExercicio]);
+        delete intervalos[idExercicio];
+        cronometroSpan.textContent = '';
+        botao.textContent = `Descanso (${tempoTotal}s)`;
+        return;
     }
 
-    // 4. Inicia e define a atualização a cada 1 segundo
-    atualizarCronometro(); // Roda imediatamente
-    intervalo = setInterval(atualizarCronometro, 1000);
-    botao.textContent = 'REINICIAR DESCANSO';
+    // Inicia o cronômetro
+    cronometros[idExercicio] = tempoTotal;
+    botao.textContent = `Pausar (${cronometros[idExercicio]}s)`;
+
+    intervalos[idExercicio] = setInterval(() => {
+        cronometros[idExercicio]--;
+
+        if (cronometros[idExercicio] <= 0) {
+            clearInterval(intervalos[idExercicio]);
+            delete intervalos[idExercicio];
+            cronometroSpan.textContent = 'Tempo Esgotado! 🔔';
+            botao.textContent = `Descanso (${tempoTotal}s)`;
+        } else {
+            const minutos = Math.floor(cronometros[idExercicio] / 60).toString().padStart(2, '0');
+            const segundos = (cronometros[idExercicio] % 60).toString().padStart(2, '0');
+            cronometroSpan.textContent = `${minutos}:${segundos}`;
+            botao.textContent = `Pausar (${cronometros[idExercicio]}s)`;
+        }
+    }, 1000);
 }
+
+// Carrega o progresso ao carregar a página
+window.onload = carregarProgresso;
